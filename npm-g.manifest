@@ -1,0 +1,5 @@
+# Global Packages Manifest
+# Add one global package per line like nodemon or typescript@5.4.2
+# Blank lines and lines starting with # are ignored.
+
+corepack
