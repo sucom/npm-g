@@ -44,9 +44,9 @@ Instead of fighting the architecture, **pure isolation combined with manifest-dr
 Here are some examples of global packages that fit perfectly into a lean, global "utility belt":
 
 **1. System & Environment Utilities**
+- **[corepack](https://nodejs.org/api/corepack.html)**: The modern standard for managing `yarn` and `pnpm` binaries globally.
 - **[npm-check-updates (ncu)](https://www.npmjs.com/package/npm-check-updates)**: Upgrades your `package.json` dependencies to their latest versions interactively.
 - **[npkill](https://www.npmjs.com/package/npkill)**: Scans your hard drive for forgotten, massive `node_modules` folders and lets you delete them to free up space.
-- **[corepack](https://nodejs.org/api/corepack.html)**: The modern standard for managing `yarn` and `pnpm` binaries globally.
 
 **2. The "Vanilla" Lifesavers**
 - **[live-server](https://www.npmjs.com/package/live-server)** (or **http-server**): Spins up a local dev server in milliseconds with live-reloading built right in. No heavy build steps or Webpack configs required.
