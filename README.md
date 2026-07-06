@@ -107,74 +107,118 @@ Run `npm-g` for the first time. It will automatically create an `npm-g.manifest`
 
 ## Usage Guide
 
-`npm-g` operates primarily on the `npm-g.manifest` file, which tracks the exact global packages you want installed on your system.
+`npm-g` operates on manifest files (`.manifest`), which track the exact global packages you want installed on your system.
+
+### 📦 Manifest Isolation & Resolution
+
+To avoid version conflicts and handle separate environments elegantly, `npm-g` supports **major-version-specific manifests**:
+
+* **Auto-Resolution**: By default, `npm-g` queries the active Node.js major version (e.g., `v22`). It automatically targets `npm-g-22.manifest` if it exists in the script directory.
+* **Fallback**: If no version-specific manifest exists for the active Node version, it falls back to the baseline `npm-g.manifest` (referred to as the `Global` manifest).
+
+This allows you to maintain separate package manifest files for different Node versions (e.g., Node 18, 20, 22) effortlessly!
+
+---
 
 ### Basic Commands
 
-- **Help / Usage**
+* **Help / Usage**
   ```bash
   npm-g --help
   ```
-
-- **Version**
-  Displays the version of npm-g, node, and npm.
+* **Version Info**
+  Displays the version of `npm-g`, active Node.js, and npm.
   ```bash
   npm-g --version
   ```
 
-### Managing Packages
+---
 
-- **Add to Manifest (`add`, `-a`)**
-  Adds one or more packages to your `npm-g.manifest` file.
+### Managing Manifests & Packages
+
+* **Edit Manifest (`edit`, `-e`)**
+  Opens a manifest in your default text editor (Notepad on Windows, TextEdit on macOS, or `nano`/`$EDITOR` on Linux). It automatically initializes the file with template comments if it doesn't already exist.
+  
+  * Edit the current active manifest (Global or active Node major version):
+    ```bash
+    npm-g edit
+    ```
+  * Create or edit a version-specific manifest (e.g., Node v22):
+    ```bash
+    npm-g edit 22
+    ```
+
+* **Add Packages (`add`, `-a`)**
+  Adds one or more packages to the active manifest file.
   ```bash
   npm-g add nodemon typescript@5.4.2
-  # Or using the shortcut if configured:
+  # Or using the 'g' shortcut:
   g a eslint
   ```
+  > [!TIP]
+  > If you add packages while a version-specific manifest does not yet exist, a helper hint will remind you that you can run `npm-g edit <version>` to create one first.
 
-- **Remove from Manifest (`remove`, `-r`)**
-  Removes one or more packages from your manifest file. *(Note: this does not uninstall them from the system, it just stops tracking them).*
-  ```bash
-  npm-g remove nodemon
-  ```
+* **Remove Packages & Purge Manifests (`remove`, `-r`)**
+  * **Remove packages** from the active manifest (does not uninstall them from the system):
+    ```bash
+    npm-g remove nodemon
+    ```
+  * **Purge the active version-specific manifest** file completely:
+    ```bash
+    npm-g remove .
+    ```
+  * **Purge a specific version manifest** file (e.g., `npm-g-20.manifest`) completely:
+    ```bash
+    npm-g remove .20
+    ```
+    > [!WARNING]
+    > The default `Global` manifest (`npm-g.manifest`) is protected and cannot be deleted/purged using the `.` or `.NN` commands.
 
-- **List Status (`list`, `-l`)**
-  Shows a detailed list comparing the packages defined in your manifest against what is actually installed globally on your machine.
-  ```bash
-  npm-g list
-  ```
-  It will show tags like `[OK]`, `[MISSING]`, `[MISMATCH]`, and `[UNTRACKED]`.
+* **List Status (`list`, `-l`)**
+  Displays a detailed comparison table between packages in your manifest and those actually installed on your system. It tags packages as `[OK]`, `[MISSING]`, `[MISMATCH]`, or `[UNTRACKED]`.
+  
+  * Scan the active environment:
+    ```bash
+    npm-g list
+    ```
+  * **Inspect an alternate Node version without switching to it**:
+    ```bash
+    npm-g list 20
+    ```
+    This reads the manifest for that version (e.g., `npm-g-20.manifest`) and directly scans the target Node version's `node_modules` folder (using `NVM_HOME` or `NVM_DIR`) to report the status of its global packages.
 
-- **Show Diff (`diff`, `-d`)**
-  Shows only the discrepancies between your manifest and the current environment (missing packages, mismatched versions, or untracked packages).
+* **Show Diff (`diff`, `-d`)**
+  Filters the list to show only discrepancies (missing, mismatched, or untracked packages).
   ```bash
   npm-g diff
   ```
 
+---
+
 ### Syncing Environment
 
-- **Install from Manifest (`install`, `-i`)**
-  Installs all missing or mismatched packages defined in your manifest to bring your system up to sync.
+* **Install Manifest Packages (`install`, `-i`)**
+  Synchronizes your active environment by installing any missing or version-mismatched packages defined in your manifest.
   ```bash
   npm-g install
   ```
 
-- **Install Specific Packages**
-  Passing a package name acts as an implicit fallback to sequential global installation, similar to standard `npm i -g`.
+* **Install Specific Packages**
+  Installs packages globally and sequentially, acting as a direct proxy to `npm install -g`.
   ```bash
   npm-g install nodemon
   # Or simply:
   npm-g nodemon
   ```
 
-- **Uninstall Untracked Packages (`uninstall`, `-u`)**
-  Purges all global packages from your system that are **not** listed in your manifest. Use this to clean up your global environment.
+* **Uninstall Untracked Packages (`uninstall`, `-u`)**
+  Purges all global packages from your system that are **not** defined in your active manifest. Keeps your global space extremely clean.
   ```bash
   npm-g uninstall
   ```
 
-- **Uninstall Specific Packages**
-  Explicitly remove target modules globally.
+* **Uninstall Specific Packages**
+  Explicitly removes specific packages globally.
   ```bash
   npm-g uninstall nodemon
   ```
